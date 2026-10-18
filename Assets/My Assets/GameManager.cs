@@ -17,7 +17,7 @@ public class GameManager : MonoBehaviour
         UpdateUI();
     }
 
-    public void AddCoin(int amount)
+    public void AddScore(int amount)
     {
         coinCount += amount;
         UpdateUI();

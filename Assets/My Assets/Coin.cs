@@ -2,18 +2,21 @@ using UnityEngine;
 
 public class Coin : MonoBehaviour
 {
-    public int value = 1;
+    [SerializeField] int value = 1;
+    [SerializeField] float spinSpeed = 90f;
+
+    void Update()
+    {
+        transform.Rotate(0f, spinSpeed * Time.deltaTime, 0f);
+    }
 
     void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Touched by: " + other.name + " | tag: " + other.tag);
-
+        Debug.Log($"Coin touched by {other.name}");
         if (other.CompareTag("Player"))
-            Collect();
-    }
-    void Collect()
-    {
-        GameManager.Instance.AddCoin(value);
-        Destroy(gameObject);
+        {
+            GameManager.Instance.AddScore(value);
+            Destroy(gameObject);
+        }
     }
 }
