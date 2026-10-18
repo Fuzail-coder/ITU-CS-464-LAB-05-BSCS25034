@@ -4,6 +4,7 @@ public class Coin : MonoBehaviour
 {
     [SerializeField] int value = 1;
     [SerializeField] float spinSpeed = 90f;
+    public bool isRed = false;
 
     void Update()
     {
@@ -16,6 +17,10 @@ public class Coin : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             GameManager.Instance.AddScore(value);
+
+            if (isRed)
+                Spawner.Instance.SpawnBlueCoins();
+
             Destroy(gameObject);
         }
     }
