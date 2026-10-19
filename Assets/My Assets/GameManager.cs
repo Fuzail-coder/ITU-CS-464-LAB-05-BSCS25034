@@ -1,18 +1,20 @@
+using TMPro;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using TMPro;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
-    public int coinCount = 0;
     public TextMeshProUGUI scoreText;
     public GameObject winPanel;
-    public int normalTarget = 10;   // itne normal coins ke baad blue aayenge
-    public int targetScore = 60;    // 10 normal + 50 blue
 
-    bool blueStarted = false;
+    public int yellowTarget = 10;   // win sirf yellow se
+
+    int yellowCollected = 0;
+    int bonusCollected = 0;
+    bool won = false;
 
     void Awake()
     {
@@ -22,40 +24,57 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        winPanel.SetActive(false);
+        if (winPanel != null) winPanel.SetActive(false);
+        else Debug.LogWarning("GameManager: winPanel assign nahi hai!");
         UpdateUI();
     }
 
-    public void AddScore(int amount)
+    public void CoinCollected(CoinKind type)
     {
-        coinCount += amount;
-        UpdateUI();
+        if (won) return;
 
-        if (!blueStarted && coinCount >= normalTarget)
+        switch (type)
         {
-            blueStarted = true;
-            Spawner.Instance.SpawnBlueCoins();
+            case CoinKind.Yellow:
+                yellowCollected++;
+                UpdateUI();
+
+                if (yellowCollected >= yellowTarget)
+                    Win();
+                else
+                    Spawner.Instance.SpawnYellow();
+                break;
+
+            case CoinKind.Red:
+                bonusCollected++;
+                UpdateUI();
+                Spawner.Instance.SpawnBlueCoins();
+                break;
+
+            case CoinKind.Blue:
+                bonusCollected++;
+                UpdateUI();
+                break;
         }
-
-        if (coinCount >= targetScore) Win();
     }
-
     void UpdateUI()
     {
-        scoreText.text = "Score: " + coinCount;
+        if (scoreText == null) return;
+        scoreText.text = "Yellow: " + yellowCollected + " / " + yellowTarget
+                       + "\nBonus: " + bonusCollected;
     }
 
     void Win()
     {
-        winPanel.SetActive(true);
+        won = true;
+        if (winPanel != null) winPanel.SetActive(true);
         Time.timeScale = 0f;
-        Cursor.lockState = CursorLockMode.None;   // button click ke liye mouse wapas
+        Cursor.lockState = CursorLockMode.None;
     }
 
     public void Restart()
     {
         Time.timeScale = 1f;
-        var s = SceneManager.GetActiveScene();
-        SceneManager.LoadScene(s.buildIndex);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }

@@ -67,9 +67,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46038c43b7dc46b4fa13e25c460345c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Coin
-  value: 1
+  type: 1
   spinSpeed: 90
-  isRed: 1
 --- !u!1001 &7253988972062748635
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -118,6 +117,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7308587604830822998, guid: 9af0f53479e974f46a014f386e5aafa0, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: acbb1229fa1b56647a6bf662b9220f7d, type: 2}
     - target: {fileID: 7682469983389241405, guid: 9af0f53479e974f46a014f386e5aafa0, type: 3}
       propertyPath: m_Name
       value: SM_Icon_Gem_01

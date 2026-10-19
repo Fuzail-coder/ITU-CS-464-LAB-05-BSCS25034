@@ -4,18 +4,20 @@ public class Spawner : MonoBehaviour
 {
     public static Spawner Instance;
 
-    [SerializeField] GameObject coinPrefab;
-    [SerializeField] float interval = 1.5f;
-    [SerializeField] int maxCoins = 1;
-    [SerializeField] int totalCoins = 10;
+    [Header("Prefabs")]
+    [SerializeField] GameObject yellowCoinPrefab;
+    [SerializeField] GameObject redCoinPrefab;
+    [SerializeField] GameObject blueCoinPrefab;
+
+    [Header("Area (gizmo box)")]
     [SerializeField] float area = 4.5f;
+    [SerializeField] float coinHeight = 0.5f;
+    [SerializeField] Transform player;
+    [SerializeField] float minDistanceFromPlayer = 1.5f;
 
     [Header("Blue")]
-    [SerializeField] GameObject blueCoinPrefab;
     [SerializeField] int blueCount = 50;
-    [SerializeField] Transform player;
-
-    int spawned = 0;
+    [SerializeField] float blueRadius = 3f;
 
     void Awake()
     {
@@ -24,30 +26,56 @@ public class Spawner : MonoBehaviour
 
     void Start()
     {
-        InvokeRepeating(nameof(SpawnCoin), 1f, interval);
+        SpawnYellow();   
+        SpawnRed();      
     }
 
-    void SpawnCoin()
+    Vector3 RandomPoint()
     {
-        if (transform.childCount >= maxCoins)
-            return;
-        float x = Random.Range(-area, area);
-        float z = Random.Range(-area, area);
-        var pos = new Vector3(x, 0.5f, z);
-        Instantiate(coinPrefab, pos, Quaternion.identity, transform);
+        Vector3 c = transform.position;
+        Vector3 pos = c;
 
-        spawned++;
-        if (spawned >= totalCoins)
-            CancelInvoke(nameof(SpawnCoin));
+        for (int i = 0; i < 20; i++)
+        {
+            pos = new Vector3(
+                c.x + Random.Range(-area, area),
+                c.y + coinHeight,
+                c.z + Random.Range(-area, area));
+
+            if (player == null) break;
+
+            Vector3 flat = pos - player.position;
+            flat.y = 0f;
+            if (flat.magnitude >= minDistanceFromPlayer) break;
+        }
+        return pos;
+    }
+
+    public void SpawnYellow()
+    {
+        Instantiate(yellowCoinPrefab, RandomPoint(), Quaternion.identity);
+    }
+
+    void SpawnRed()
+    {
+        Instantiate(redCoinPrefab, RandomPoint(), Quaternion.identity);
     }
 
     public void SpawnBlueCoins()
     {
+        Vector3 c = transform.position;
+
+        float limit = Mathf.Max(0f, area - blueRadius);
+        Vector3 center = player.position;
+        center.x = Mathf.Clamp(center.x, c.x - limit, c.x + limit);
+        center.z = Mathf.Clamp(center.z, c.z - limit, c.z + limit);
+
         for (int i = 0; i < blueCount; i++)
         {
-            Vector2 r = Random.insideUnitCircle.normalized;
-            Vector3 pos = player.position
-                + new Vector3(r.x, 0f, r.y) * 6f;
+            float angle = i * Mathf.PI * 2f / blueCount;
+            Vector3 pos = center + new Vector3(
+                Mathf.Cos(angle), 0f, Mathf.Sin(angle)) * blueRadius;
+            pos.y = c.y + coinHeight;
 
             Instantiate(blueCoinPrefab, pos, Quaternion.identity);
         }
@@ -56,7 +84,7 @@ public class Spawner : MonoBehaviour
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireCube(transform.position + Vector3.up * 0.5f,
+        Gizmos.DrawWireCube(transform.position + Vector3.up * coinHeight,
                             new Vector3(area * 2, 0.1f, area * 2));
     }
 }

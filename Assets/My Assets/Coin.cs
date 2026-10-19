@@ -1,27 +1,25 @@
 using UnityEngine;
 
+public enum CoinKind { Yellow, Red, Blue }
+
 public class Coin : MonoBehaviour
 {
-    [SerializeField] int value = 1;
+    public CoinKind type = CoinKind.Yellow;
     [SerializeField] float spinSpeed = 90f;
-    public bool isRed = false;
+
+    bool collected = false;
 
     void Update()
     {
-        transform.Rotate(0f, spinSpeed * Time.deltaTime, 0f);
+        transform.Rotate(0f, spinSpeed * Time.deltaTime, 0f, Space.World);
     }
 
     void OnTriggerEnter(Collider other)
     {
-        Debug.Log($"Coin touched by {other.name}");
-        if (other.CompareTag("Player"))
-        {
-            GameManager.Instance.AddScore(value);
+        if (collected || !other.CompareTag("Player")) return;
+        collected = true;
 
-            if (isRed)
-                Spawner.Instance.SpawnBlueCoins();
-
-            Destroy(gameObject);
-        }
+        GameManager.Instance.CoinCollected(type);
+        Destroy(gameObject);
     }
 }
